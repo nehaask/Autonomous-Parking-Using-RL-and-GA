@@ -26,7 +26,7 @@ You can modify key parameters in the script:
 
 ## Output
 - **Trajectory Plots**: Shows the evolution of the optimal trajectory.
-- **Parameter Evolution Graphs**: Visualizes how \( \gamma \) and \( \beta \) change over generations.
+- **Parameter Evolution Graphs**: Visualizes how gamma and beta change over generations.
 
 ## Contributing
 Feel free to submit issues or pull requests to improve this project!
