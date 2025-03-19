@@ -1,6 +1,5 @@
 import math
 import random
-
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d, CubicSpline
@@ -81,19 +80,6 @@ def interpolate_gamma_beta(pop, gamma, beta):
         beta_new = f_beta(time_new)
         interp_beta[individual] = beta_new
 
-    # indices_g = np.where((gamma_new < -0.524) | (gamma_new > 0.524))
-    # indices_b = np.where((beta < -5) | (beta > 5))
-
-
-    # f_gamma = CubicSpline(t, gamma)
-    # f_beta = CubicSpline(t, beta)
-    # gamma_new = f_gamma(time_new)
-    # beta_new = f_beta(time_new)
-
-    # f_beta = interp1d(t, beta, kind='linear', bounds_error=False)
-    # beta_new = f_beta(time_new)
-    # indices = np.where((beta < -5) | (beta > 5))
-    # print(indices)
     return interp_gamma, interp_beta
 
 def ode_system(state_space, beta_t, gamma_t):
