@@ -4,9 +4,10 @@ import time
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
+import config as cfg
 
 GENERATIONS = 10
-POPULATION_SIZE = 200
+POPULATION_SIZE = 200 # Population size
 OPT_PARAM_VECTOR_SIZE = 20
 BINARY_CODE_SIZE = 7
 MUTATION_PROBABILITY = 0.05
@@ -31,6 +32,7 @@ vf = 0.0
 
 
 def convert_binary_to_gray(binary_list):
+    """Convert binary array to Gray code."""
     gray = np.zeros_like(binary_list)
     gray[..., 0] = binary_list[..., 0]
     for i in range(1, binary_list.shape[-1]):
@@ -40,6 +42,7 @@ def convert_binary_to_gray(binary_list):
 
 
 def gamma_beta(binary_code):
+    """Convert binary code to gamma and beta values."""
     gamma_list = []
     beta_list = []
     for i in range(len(binary_code)):
@@ -66,6 +69,7 @@ def gamma_beta(binary_code):
 
 
 def checking(x, y):
+    '''Check if the car is in the parking area'''
     if (x <= -4) and (y > 3):
         return True
     elif (x > -4 and x < 4) and y > -1:
@@ -76,7 +80,13 @@ def checking(x, y):
         return False
 
 
-def plot_the_plots(x_plot, y_plot, alpha_plot, v_plot, gamma_plot, beta_plot):
+def plot_trajectory_and_metrics(x_plot, y_plot, alpha_plot, v_plot, gamma_plot, beta_plot):
+    '''Plot trajectory path separately and other metrics (gamma, beta, x, y, alpha, v) in a combined figure'''
+
+    # --- Plot 1: Trajectory Path ---
+    plt.figure(figsize=(8, 8))
+    
+    # Define boundary lines for trajectory reference
     x1 = np.linspace(-16, -4, 1000)
     y1 = 3 * np.ones_like(x1)
     y2 = np.linspace(3, -1, 1000)
@@ -87,65 +97,84 @@ def plot_the_plots(x_plot, y_plot, alpha_plot, v_plot, gamma_plot, beta_plot):
     x5 = np.linspace(-4, 4, 1000)
     y5 = -1 * np.ones_like(x5)
 
-    fig, ax = plt.subplots()
-    ax.plot(x1, y1)
-    ax.plot(x2, y2)
-    ax.plot(x3, y3)
-    ax.plot(x4, y2)
-    ax.plot(x5, y5)
-    ax.plot(x_plot, y_plot)
+    # Plot trajectory boundary
+    plt.plot(x1, y1, 'b', label="Boundary")
+    plt.plot(x2, y2, 'b')
+    plt.plot(x3, y3, 'b')
+    plt.plot(x4, y2, 'b')
+    plt.plot(x5, y5, 'b')
+
+    # Plot trajectory path
+    plt.plot(x_plot, y_plot, 'r', label="Trajectory")
+
+    # Formatting
     plt.xlim(-15, 15)
     plt.ylim(-15, 15)
-    plt.grid()
     plt.xlabel("X")
     plt.ylabel("Y")
-    plt.title("TRAJECTORY PATH")
-
-    fig, ax = plt.subplots()
-    ax.plot(np.linspace(0, 10, 1000), gamma_plot)
+    plt.title("Trajectory Path")
     plt.grid()
-    plt.xlabel("TIME")
-    plt.ylabel("GAMMA")
-    plt.title("GAMMA VS TIME")
+    plt.legend()
+    plt.savefig("output/trajectory_plot.png")
+    plt.show()
 
-    fig, ax = plt.subplots()
-    ax.plot(np.linspace(0, 10, 1000), beta_plot)
-    plt.grid()
-    plt.xlabel("TIME")
-    plt.ylabel("BETA")
-    plt.title("BETA VS TIME")
+    # --- Plot 2: Metrics vs Time ---
+    fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(12, 12))
+    axes = axes.flatten()  # Convert 2D array to 1D for easy indexing
 
-    fig, ax = plt.subplots()
-    ax.plot(np.linspace(0, 10, 1000), x_plot)
-    plt.grid()
-    plt.xlabel("TIME")
-    plt.ylabel("X")
-    plt.title("X VS TIME")
+    # Define a common time axis
+    time_axis = np.linspace(0, 10, 1000)
 
-    fig, ax = plt.subplots()
-    ax.plot(np.linspace(0, 10, 1000), y_plot)
-    plt.grid()
-    plt.xlabel("TIME")
-    plt.ylabel("Y")
-    plt.title("Y VS TIME")
+    # 1. Gamma vs Time
+    axes[0].plot(time_axis, gamma_plot, 'g')
+    axes[0].set_xlabel("Time")
+    axes[0].set_ylabel("Gamma")
+    axes[0].set_title("Gamma vs Time")
+    axes[0].grid()
 
-    fig, ax = plt.subplots()
-    ax.plot(np.linspace(0, 10, 1000), alpha_plot)
-    plt.grid()
-    plt.xlabel("TIME")
-    plt.ylabel("ALPHA")
-    plt.title("ALPHA VS TIME")
+    # 2. Beta vs Time
+    axes[1].plot(time_axis, beta_plot, 'm')
+    axes[1].set_xlabel("Time")
+    axes[1].set_ylabel("Beta")
+    axes[1].set_title("Beta vs Time")
+    axes[1].grid()
 
-    fig, ax = plt.subplots()
-    ax.plot(np.linspace(0, 10, 1000), v_plot)
-    plt.grid()
-    plt.xlabel("TIME")
-    plt.ylabel("V")
-    plt.title("V VS TIME")
+    # 3. X vs Time
+    axes[2].plot(time_axis, x_plot, 'c')
+    axes[2].set_xlabel("Time")
+    axes[2].set_ylabel("X")
+    axes[2].set_title("X vs Time")
+    axes[2].grid()
+
+    # 4. Y vs Time
+    axes[3].plot(time_axis, y_plot, 'y')
+    axes[3].set_xlabel("Time")
+    axes[3].set_ylabel("Y")
+    axes[3].set_title("Y vs Time")
+    axes[3].grid()
+
+    # 5. Alpha vs Time
+    axes[4].plot(time_axis, alpha_plot, 'k')
+    axes[4].set_xlabel("Time")
+    axes[4].set_ylabel("Alpha")
+    axes[4].set_title("Alpha vs Time")
+    axes[4].grid()
+
+    # 6. V vs Time
+    axes[5].plot(time_axis, v_plot, 'r')
+    axes[5].set_xlabel("Time")
+    axes[5].set_ylabel("V")
+    axes[5].set_title("V vs Time")
+    axes[5].grid()
+
+    # Adjust layout for better spacing
+    plt.tight_layout()
+    plt.savefig("output/values_plot.png")
     plt.show()
 
 
 def interpolate_gamma_beta(pop, gamma, beta):
+    '''Interpolate gamma and beta values for each individual in the population'''
     t = np.linspace(0, 9, 10)
     time_new = np.linspace(0, 9, 1000)
     interp_gamma = np.zeros((len(gamma), len(time_new)))
@@ -166,6 +195,7 @@ def interpolate_gamma_beta(pop, gamma, beta):
 
 
 def ode_system(state_space, beta_t, gamma_t):
+    '''Define the ODE system for the car dynamics'''
     x, y, alpha, v = state_space
     alpha_dot = gamma_t
     v_dot = beta_t
@@ -175,6 +205,7 @@ def ode_system(state_space, beta_t, gamma_t):
 
 
 def euler(gamma, beta, ind):
+    '''Implement Euler's method to solve the ODE system'''
     time_new = np.linspace(0, 9, 1000)
     z_history = np.zeros((1000, 4))
     z = np.array([x0, y0, alpha0, v0])
@@ -207,10 +238,13 @@ def euler(gamma, beta, ind):
 
 
 def fitness_function(cost):
+    '''Calculate fitness value based on the cost function'''
     return 1 / (1 + cost)
 
 
 def crossover(parent1, parent2):
+    '''Perform crossover operation between
+    two parents to generate two children'''
     crossover_point = random.randint(1, len(parent1) - 1)
     child1 = np.concatenate(
         (parent1[:crossover_point], parent2[crossover_point:]), axis=0)
@@ -220,6 +254,8 @@ def crossover(parent1, parent2):
 
 
 def mutation(child):
+    '''Perform mutation operation on a child
+    with a certain mutation rate'''
     mutated_child = list(child)
     for i in range(len(mutated_child)):
         if random.random() < MUTATION_RATE:
@@ -248,7 +284,7 @@ def main():
         v_plot.append(state[3])
 
         if c < COST_TOL:
-            plot_the_plots(x_plot, y_plot, alpha_plot, v_plot,
+            plot_trajectory_and_metrics(x_plot, y_plot, alpha_plot, v_plot,
                            interpolated_gamma[individual][0], interpolated_beta[individual][0])
             quit()
         cost.append(c)
@@ -302,14 +338,14 @@ def main():
                 print("y_f = ", state[1])
                 print("alpha_f = ", state[2])
                 print("v_f = ", state[3])
-                plot_the_plots(x_coords, y_coords, alpha_coords, v_coords,
+                plot_trajectory_and_metrics(x_coords, y_coords, alpha_coords, v_coords,
                                interpolated_gamma[gen], interpolated_beta[gen])
                 controls_text = []
                 for idx in range(len(gamma[individual])):
                     controls_text.append(gamma[individual][idx])
                     controls_text.append(beta[individual][idx])
                 arr = np.asarray(controls_text)
-                np.savetxt('controls.dat', arr, delimiter='\n')
+                np.savetxt('output/controls.dat', arr, delimiter='\n')
                 quit()
 
         fitness_ratios = []
