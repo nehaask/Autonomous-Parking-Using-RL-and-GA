@@ -1,6 +1,6 @@
 # Genetic Algorithm for Optimal Trajectory Planning
 
-This repository implements a genetic algorithm (GA) to optimize trajectory planning using control parameters \( \gamma \) and \( \beta \). The algorithm evolves these parameters over multiple generations to find an optimal control strategy for a given dynamic system.
+This repository implements a genetic algorithm (GA) to optimize trajectory planning using control parameters (gamma and beta). The algorithm evolves these parameters over multiple generations to find an optimal control strategy for a given dynamic system.
 
 ## Features
 - **Binary Encoding & Gray Code Conversion**: Parameters are encoded in binary and converted to Gray code for efficient crossover.
